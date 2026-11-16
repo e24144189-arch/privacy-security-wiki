@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>個資保護與防詐自保——大學生版</title>
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  color: #2d3561;
+}
+
+/* ── 16:9 wrapper ── */
+.deck-wrapper { width: 100%; max-width: 1200px; }
+
+.deck-stage {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+}
+
+/* 每張投影片 = <section class="slide"> */
+section.slide {
+  display: none;
+  position: absolute;
+  inset: 0;
+  padding: 44px 60px 50px;
+  flex-direction: column;
+  background: #faf9f6;
+  overflow: hidden;
+}
+section.slide.active { display: flex; }
+
+/* ── 色調 ── */
+.s-cover  { background: linear-gradient(135deg,#e8f4f8 0%,#d4eaf7 100%); }
+.s-legend { background: #f8faf5; }
+.s-legal  { background: #f0f4ff; }
+.s-scam   { background: #fff9f0; }
+.s-defense{ background: #fdf6e3; }
+.s-review { background: linear-gradient(135deg,#e8f4f8 0%,#f0ffe8 100%); }
+
+/* ── 標題列 ── */
+.slide-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+.ei { font-size: 50px; line-height: 1; flex-shrink: 0; }
+h1.st, h2.st {
+  font-size: 30px;
+  color: #2d3561;
+  line-height: 1.25;
+  font-weight: 700;
+}
+h2.st { font-size: 27px; }
+
+/* ── 中文白話解釋 + 英文原句 ── */
+.card p.zh { font-size: 18px; line-height: 1.6; color: #2f3350; }
+.card p.en { font-size: 14px; line-height: 1.45; color: #667; border-top: 1px dashed #c9cfe0; padding-top: 6px; margin-top: auto; }
+
+/* ── 卡片格線 ── */
+.cards {
+  display: grid;
+  gap: 14px;
+  flex: 1;
+}
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.g5 { grid-template-columns: repeat(5,1fr); }
+.g2x2 { grid-template-columns: 1fr 1fr; }
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.c-blue   { background: #e8f4fc; }
+.c-green  { background: #edf7ee; }
+.c-yellow { background: #fef9e7; }
+.c-orange { background: #fef0e6; }
+.c-red    { background: #fdecea; }
+.c-purple { background: #f3eeff; }
+.c-mint   { background: #e6f9f4; }
+
+.ct { font-size: 20px; font-weight: 700; color: #2d3561; margin-bottom: 4px; }
+.card p, .card li { font-size: 18px; line-height: 1.65; color: #3a3a4a; }
+.card ul, .card ol { padding-left: 18px; }
+.card li { margin-bottom: 3px; }
+
+/* ── 受眾標籤 ── */
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.bp { background: #d1ecf1; color: #0c5460; }
+.bc { background: #ffe5cc; color: #7a3400; }
+.bs { background: #d4edda; color: #155724; }
+
+/* ── 引言 ── */
+.qblock {
+  background: white;
+  border-left: 5px solid #5b8dee;
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #2d3561;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.qblock strong { color: #1a3a7a; }
+
+/* ── 警示框 ── */
+.alert { border-radius: 10px; padding: 10px 14px; font-size: 16px; line-height: 1.6; }
+.aw { background: #fff3cd; border-left: 4px solid #e6a817; color: #5a3800; }
+.ao { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+.ai { background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460; }
+
+/* ── 出處（必填） ── */
+.source {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 44px;
+  font-size: 13px;
+  color: #888;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(4px);
+}
+
+/* ── 1欄 ── */
+.one-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+/* ── 封面 ── */
+.cover-body {
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center; gap: 20px;
+}
+.cover-emoji { font-size: 68px; }
+.cover-title { font-size: 40px; font-weight: 800; color: #2d3561; line-height: 1.2; }
+.cover-sub   { font-size: 19px; color: #5a6a8a; }
+.pills       { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+.pill        { background: white; border-radius: 22px; padding: 9px 20px; font-size: 17px; color: #2d3561; box-shadow: 0 2px 7px rgba(0,0,0,0.1); }
+
+/* ── 凡例頁 ── */
+.legend-cards { display: flex; gap: 18px; justify-content: center; flex: 1; align-items: center; }
+.legend-card  { flex: 1; max-width: 270px; border-radius: 14px; padding: 24px 20px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.le { font-size: 36px; }
+.lt { font-size: 19px; font-weight: 700; color: #2d3561; }
+.ld { font-size: 16px; color: #555; line-height: 1.6; }
+
+/* ── 72小時比較表 ── */
+.comp-table { width: 100%; border-collapse: collapse; font-size: 16px; flex: 1; }
+.comp-table th { background: #2d3561; color: white; padding: 8px 10px; text-align: left; }
+.comp-table td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; line-height: 1.6; }
+.comp-table tr:nth-child(even) td { background: #f4f8ff; }
+.tag-gdpr   { display:inline-block;padding:1px 7px;border-radius:12px;background:#d1ecf1;color:#0c5460;font-size:16px;font-weight:600; }
+.tag-moda   { display:inline-block;padding:1px 7px;border-radius:12px;background:#fef9e7;color:#7a4800;font-size:16px;font-weight:600; }
+.tag-pdpa   { display:inline-block;padding:1px 7px;border-radius:12px;background:#fdecea;color:#7a0000;font-size:16px;font-weight:600; }
+
+/* ── 重點回顧 ── */
+.review-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; flex: 1; min-height: 0; }
+.rc { background: white; border-radius: 12px; padding: 8px 12px; box-shadow: 0 2px 7px rgba(0,0,0,0.07); font-size: 14px; line-height: 1.45; color: #3a3a4a; display: flex; flex-direction: column; gap: 4px; }
+.re { font-size: 20px; line-height: 1.1; }
+.rt { font-size: 15px; font-weight: 700; color: #2d3561; }
+.reading-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; margin-top: 6px; }
+.ri { background: white; border-radius: 8px; padding: 6px 12px; font-size: 14px; color: #2d3561; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.ri::before { content: "📄 "; }
+.ri { font-size: 12px; padding: 4px 10px; }
+
+/* ── 導覽 ── */
+.nav-bar { display: flex; align-items: center; gap: 18px; margin-top: 16px; justify-content: center; }
+.nav-btn { background: white; color: #2d3561; border: none; padding: 9px 26px; border-radius: 9px; font-size: 16px; font-family: "Microsoft JhengHei","PingFang TC",sans-serif; cursor: pointer; box-shadow: 0 2px 7px rgba(0,0,0,0.12); transition: background .2s; }
+.nav-btn:hover { background: #e8f4fc; }
+.nav-btn:disabled { opacity: .35; cursor: default; }
+.page-info { color: white; font-size: 15px; min-width: 72px; text-align: center; }
+
+/* ── 動態效果（系統設定「減少動態效果」時自動關閉）── */
+body { overflow-x: hidden; }
+@keyframes slideNext { from { opacity: 0; transform: translateX(56px); } to { opacity: 1; transform: none; } }
+@keyframes slidePrev { from { opacity: 0; transform: translateX(-56px); } to { opacity: 1; transform: none; } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(26px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes popIn { 0% { opacity: 0; transform: scale(.3) rotate(-14deg); } 65% { opacity: 1; transform: scale(1.18) rotate(4deg); } 100% { opacity: 1; transform: none; } }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+
+.deck-stage[data-dir="next"] section.slide.active { animation: slideNext .5s cubic-bezier(.2,.8,.2,1) both; }
+.deck-stage[data-dir="prev"] section.slide.active { animation: slidePrev .5s cubic-bezier(.2,.8,.2,1) both; }
+
+/* 標題圖示彈跳進場；封面圖示進場後持續輕輕浮動 */
+section.slide.active .ei { animation: popIn .6s .15s cubic-bezier(.2,.8,.2,1) both; }
+section.slide.active .cover-emoji { animation: popIn .7s .15s cubic-bezier(.2,.8,.2,1) both, floaty 3.2s 1s ease-in-out infinite; }
+section.slide.active .cover-title { animation: riseIn .6s .3s both; }
+section.slide.active .cover-sub   { animation: riseIn .6s .45s both; }
+
+/* 內容元素依序浮現（延遲由 JS 設定 --i） */
+section.slide.active .card,
+section.slide.active .qblock,
+section.slide.active .alert,
+section.slide.active .legend-card,
+section.slide.active .rc,
+section.slide.active .pill,
+section.slide.active .ri,
+section.slide.active .comp-table tbody tr {
+  animation: riseIn .5s calc(.3s + var(--i, 0) * .09s) cubic-bezier(.2,.8,.2,1) both;
+}
+/* 卡片內部的元素跟著卡片一起出現，不另外動畫 */
+section.slide.active .card .qblock,
+section.slide.active .card .alert,
+section.slide.active .qblock .qblock { animation: none; }
+
+/* 進度條 */
+.progress { width: 100%; max-width: 1200px; height: 6px; margin-top: 14px; background: rgba(255,255,255,.16); border-radius: 6px; overflow: hidden; }
+#bar { height: 100%; width: 0; background: linear-gradient(90deg,#7fd1c7,#7fb8ff); border-radius: 6px; transition: width .45s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="deck-wrapper">
+  <div class="deck-stage" data-dir="next">
+
+    <!-- ═══ P1 封面 ═══ -->
+    <section class="slide s-cover active" data-no-source="true">
+      <div class="cover-body">
+        <div class="cover-emoji">🛡️</div>
+        <div class="cover-title">個資保護與防詐自保</div>
+        <div class="cover-sub">給沒學過資安的大學生</div>
+        <div class="pills">
+          <div class="pill">❓ 我的個資是什麼？</div>
+          <div class="pill">❓ 我有哪些法定權利？</div>
+          <div class="pill">❓ 常見詐騙長什麼樣？</div>
+          <div class="pill">❓ 被詐騙前怎麼自保？</div>
+        </div>
+      </div>
+    </section>
+    <!-- ═══ P2 閱讀指南：三種受眾標籤 ═══ -->
+    <section class="slide s-legend" data-no-source="true">
+      <div class="slide-header">
+        <div class="ei">📌</div>
+        <h1 class="st">閱讀指南：三種受眾標籤</h1>
+      </div>
+      <div class="legend-cards">
+        <div class="legend-card c-blue">
+          <div class="le">🧑‍🎓</div>
+          <div class="lt"><span class="badge bp">對象：個人</span></div>
+          <div class="ld">這頁你可以直接用。<br>防詐自保、辨識詐騙、個人法定權利，都屬這一類。</div>
+        </div>
+        <div class="legend-card c-orange">
+          <div class="le">🏢</div>
+          <div class="lt"><span class="badge bc">對象：企業</span></div>
+          <div class="ld">這頁是給公司或組織看的規範，不是你自己的操作清單。</div>
+        </div>
+        <div class="legend-card c-green">
+          <div class="le">🖥️</div>
+          <div class="lt"><span class="badge bs">對象：服務提供者</span></div>
+          <div class="ld">給開發或維運系統的一方（如登入驗證服務）看的技術規範。</div>
+        </div>
+      </div>
+      <div class="alert ai">📌 <strong>條文狀態標籤</strong>：「修正版條文（尚未生效）」＝出自民國 114 年 11 月 11 日修正版，尚未生效；「本版未列為修正」＝這個版本沒有修改該條；「本版標示刪除」＝這個版本將該條標為「（刪除）」。現行實務採用哪個版本：【待使用者確認】。</div>
+    </section>
+    <!-- ═══ P3 什麼是個人資料？ ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">📋</div>
+        <h2 class="st">什麼是「個人資料」？<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="qblock">
+          <strong>第 2 條第 1 款：</strong>「個人資料：指自然人之姓名、出生年月日、國民身分證統一編號、護照號碼、特徵、指紋、婚姻、家庭、教育、職業、病歷、醫療、基因、性生活、健康檢查、犯罪前科、聯絡方式、財務情況、社會活動及其他得以直接或間接方式識別該個人之資料。」
+        </div>
+        <div class="cards g3">
+          <div class="card c-blue">
+            <div class="ct">🪪 直接識別</div>
+            <p>姓名「王小明」<br>電話 <code>0900-000-000</code><br>身分證字號</p>
+          </div>
+          <div class="card c-green">
+            <div class="ct">🔗 間接識別</div>
+            <p>Email <code>user@example.com</code> + 社會活動紀錄<br>→ 仍算個資</p>
+          </div>
+          <div class="card c-yellow">
+            <div class="ct">💡 關鍵觀念</div>
+            <p>「直接或間接」能認出你這個人的，<strong>都是個資</strong>。</p>
+          </div>
+        </div>
+        <div class="qblock" style="border-color:#c0392b;">
+          <strong>第 6 條第 1 項（受嚴格保護）：</strong>「有關病歷、醫療、基因、性生活、健康檢查及犯罪前科之個人資料，不得蒐集、處理或利用。」（六款法定例外情形方可）
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/personal-data-definition.md</span>
+        <span>狀態：本版未列為修正</span>
+      </div>
+    </section>
+    <!-- ═══ P4 當事人權利 ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">⚖️</div>
+        <h2 class="st">你的法定權利<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="qblock">
+          <strong>第 3 條（五大核心權利，「不得預先拋棄或以特約限制之」）：</strong>① 查詢或請求閱覽　② 請求製給複製本　③ 請求補充或更正　④ 請求停止蒐集、處理或利用　⑤ 請求刪除
+        </div>
+        <div class="cards g3">
+          <div class="card c-blue">
+            <div class="ct">📢 拒絕行銷（第 20 條第 2、3 項）</div>
+            <p>「非公務機關依前項規定利用個人資料行銷者，當事人表示拒絕接受行銷時，應即停止利用其個人資料行銷。」</p>
+            <p>「非公務機關於首次行銷時，應提供當事人表示拒絕接受行銷之方式，並支付所需費用。」</p>
+          </div>
+          <div class="card c-yellow">
+            <div class="ct">⏳ 機關多久要回覆（第 13 條）</div>
+            <p>查詢、閱覽、複製本：15 日內決定准駁，必要時可延長（不逾 15 日）。</p>
+            <p>補充、更正、停止、刪除：30 日內決定准駁，必要時可延長（不逾 30 日）。</p>
+          </div>
+          <div class="card c-green">
+            <div class="ct">💰 受損可求償（第 28–30 條）</div>
+            <p>難以證明損害額時，可請法院依侵害情節，以「每人每一事件新臺幣五百元以上二萬元以下」計算。</p>
+            <p>請求時效：自知有損害及賠償義務人起 2 年；自損害發生起 5 年。</p>
+          </div>
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/rights-of-data-subjects.md</span>
+        <span>第 3、13、20、28–30 條：本版未列為修正</span>
+      </div>
+    </section>
+
+    <!-- ═══ P5 五種詐騙辨識（上）：假網拍、假投資、假交友 ═══ -->
+    <section class="slide s-scam">
+      <div class="slide-header">
+        <div class="ei">🚨</div>
+        <h2 class="st">常見詐騙辨識（一）<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="cards g3" style="flex:1;">
+        <div class="card">
+          <div class="ct">🛒 假網拍</div>
+          <ul>
+            <li>超低價吸引，要求加 LINE 私下交易</li>
+            <li>傳一頁式網站，要求「先匯款保留商品」</li>
+            <li>面交地點偏遠、時間總約不到，改要求匯款；匯款後消失或封鎖</li>
+          </ul>
+          <div class="alert ao" style="margin-top:6px;font-size:15px;">✅ 不點不明連結，自行開官方 App 查證；有疑慮撥 165</div>
+        </div>
+        <div class="card">
+          <div class="ct">📈 假投資</div>
+          <ul>
+            <li>宣稱「AI投資機器人」「內線消息當沖佈局，跟著大戶當沖獲利」</li>
+            <li>要求匯款「不可備註原因」，叮囑須告知行員為「工程款/房屋修繕裝潢款/借親友錢」</li>
+            <li>要出金先繳「稅金」「擔保金」「風險認證金」</li>
+          </ul>
+          <div class="alert ao" style="margin-top:6px;font-size:15px;">✅ 不點不明連結；有疑慮先掛斷、撥 165 查證</div>
+        </div>
+        <div class="card">
+          <div class="ct">💔 假交友（投資詐財）</div>
+          <ul>
+            <li>自稱異國高薪、企業主管，社群全是名車豪宴照</li>
+            <li>「合租高級AI算力機」「租用泰達幣虛擬礦機可穩定獲利」</li>
+            <li>要提領獲利就要「高級認證」「處理風險工本費」「保證金」</li>
+          </ul>
+          <div class="alert ao" style="margin-top:6px;font-size:15px;">✅ 不點通訊軟體內的不明連結；有疑慮先掛斷、撥 165 查證</div>
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/defense/common-scams-recognition.md § 1–3</span>
+        <span>辨識特徵：raw/02　預防作為：raw/03、raw/04</span>
+      </div>
+    </section>
+    <!-- ═══ P6 五種詐騙辨識（下）：猜猜我是誰、假廣告 ═══ -->
+    <section class="slide s-scam">
+      <div class="slide-header">
+        <div class="ei">🎭</div>
+        <h2 class="st">常見詐騙辨識（二）<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="cards g2" style="flex:1;">
+        <div class="card">
+          <div class="ct">🕵️ 猜猜我是誰</div>
+          <ul>
+            <li>「我是○○，我最近換了新電話，以後要用這個號碼來聯繫，記得通訊錄要更新」</li>
+            <li>說聲音沙啞是因感冒／訊號差</li>
+            <li>建立聯繫後提出借錢：「我支票即將跳票，可以借錢周轉嗎」「我有一筆貨款急需付款，幫我支付這筆錢」</li>
+          </ul>
+          <div class="alert ao" style="margin-top:8px;font-size:15px;">✅ 遇有疑慮：先掛斷電話，即刻撥打 165 查證</div>
+          <div class="qblock" style="font-size:16px;margin-top:6px;">
+            <strong>資安署自保原則三：</strong>「凡提及『操作ATM、網銀解除扣款』或『透過通訊軟體退款』，均為詐騙，請立即掛斷電話；」
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">🏠 假廣告</div>
+          <ul>
+            <li>租屋廣告「價格實惠」，宣稱看房人數眾多，先匯訂金可優先看房</li>
+            <li>假票券網：「輸入【信用卡號、姓名、電子郵件】等資訊，即可登記購票」，實則盜刷</li>
+            <li>要求先匯代辦費，3天辦好看護證，款項到手後消失</li>
+          </ul>
+          <div class="alert ao" style="margin-top:8px;font-size:15px;">✅ 不點不明連結，自行開官方網站查證；檢查網址有無相似字符（如 <code>0rg.tw</code>）；有疑慮撥 165</div>
+          <div class="alert aw" style="margin-top:6px;font-size:15px;">
+            🧑 情境：王小明看到租金低於行情的租屋廣告，對方稱先匯訂金可優先看房 → 符合假廣告特徵，不付款、向 165 查證。
+          </div>
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/defense/common-scams-recognition.md § 4–5</span>
+        <span>辨識特徵：raw/02　預防作為：raw/03、raw/04</span>
+      </div>
+    </section>
+    <!-- ═══ P7 釣魚郵件識破 ═══ -->
+    <section class="slide s-defense">
+      <div class="slide-header">
+        <div class="ei">🎣</div>
+        <h2 class="st">釣魚郵件怎麼識破？<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="cards g2">
+          <div class="card c-red">
+            <div class="ct">⚠️ 偽冒政府機關郵件特徵</div>
+            <ul>
+              <li>「偽冒財政部或稅務機關發送涉及稅務事宜的電子郵【原文如此】」</li>
+              <li>釣魚連結藏在「附檔」裡，要先過「Captcha 驗證」才顯示內容（規避資安掃描）</li>
+              <li>網頁背景模糊化，誘導你輸入資料</li>
+              <li>輸入公司域名後，頁面自動顯示你公司的商標與登入頁</li>
+            </ul>
+          </div>
+          <div class="card c-green">
+            <div class="ct">✅ 個人查核四要領</div>
+            <ol>
+              <li>🔍 <strong>域名驗證</strong>：官方是 <code>.gov.tw</code>（字母 o）；小心 <code>.g0v</code>（數字 0）、<code>.gov.tw1</code> 等相似字</li>
+              <li>📞 <strong>內容與管道查證</strong>：「勿隨便點擊郵件中的連結」，自行查官方電話確認；「正式文件通常會使用實體公文書信掛號」</li>
+              <li>🛡️ <strong>端點防護</strong>：安裝並定期更新防毒軟體</li>
+              <li>🔤 <strong>網址變造</strong>：org.tw 可能被改成 0rg.tw，點連結前再確認網址</li>
+            </ol>
+          </div>
+        </div>
+        <div class="alert aw">
+          🧑 情境：王小明的信箱收到主旨「勞工退休權益核對通知」的信，要他點附檔裡的連結。寄件網域是 <code>.g0v.tw</code>（數字 0），不是官方 <code>.gov.tw</code> → 不點附檔，自行向官方查證。
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/defense/phishing-email-defense.md</span>
+        <span>原始資料：raw/04 TWCERT/CC</span>
+      </div>
+    </section>
+
+    <!-- ═══ P8 自保四原則 + 2FA ═══ -->
+    <section class="slide s-defense">
+      <div class="slide-header">
+        <div class="ei">🔐</div>
+        <h2 class="st">個資外洩後——自保四原則 ＋ 2FA<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="cards g2x2" style="flex:1;">
+        <div class="card c-blue">
+          <div class="ct">① 知道細節≠真客服</div>
+          <div class="qblock" style="font-size:16px;">「對方能說出姓名、訂單與消費細節，不等於是真客服；」</div>
+          <p style="margin-top:4px;">個資外洩後，詐騙集團可能拿到你的訂單紀錄，別因此輕信。</p>
+        </div>
+        <div class="card c-green">
+          <div class="ct">② 不點不明連結</div>
+          <div class="qblock" style="font-size:16px;">「切勿點擊簡訊或通訊軟體內的不明連結，應自行開啟官方App或官方網站查證；」</div>
+        </div>
+        <div class="card c-yellow">
+          <div class="ct">③ 聽見關鍵字立即掛斷</div>
+          <div class="qblock" style="font-size:16px;">「凡提及『操作ATM、網銀解除扣款』或『透過通訊軟體退款』，均為詐騙，請立即掛斷電話；」</div>
+        </div>
+        <div class="card c-orange">
+          <div class="ct">④ 全面啟用 2FA</div>
+          <div class="qblock" style="font-size:16px;">「各大常用帳號全面啟用雙重驗證（2FA），不同平台避免共用密碼。」</div>
+          <p style="margin-top:4px;font-size:16px;">💡 2FA ＝ 雙重驗證。即使密碼外洩，也能阻斷未經授權的登入（wiki § 2.4）。</p>
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/defense/post-breach-defense.md</span>
+        <span>原始資料：raw/03 數發部資安署</span>
+      </div>
+    </section>
+    <!-- ═══ P13 165 查證步驟 ═══ -->
+    <section class="slide s-defense">
+      <div class="slide-header">
+        <div class="ei">☎️</div>
+        <h2 class="st">遇到疑慮？165 是你的後盾<span class="badge bp">對象：個人</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="qblock" style="font-size:17px;font-weight:600;">
+          「民眾若遇有疑慮，請先掛斷電話，並即刻撥打165反詐騙諮詢專線查證。」
+          <br><small style="font-weight:400;color:#555;">—— 數發部資安署（raw/03）</small>
+        </div>
+        <div class="cards g3">
+          <div class="card c-blue" style="text-align:center;">
+            <div style="font-size:34px;">1️⃣</div>
+            <div class="ct">先掛斷電話</div>
+            <p>遇有疑慮，請先掛斷電話。</p>
+          </div>
+          <div class="card c-green" style="text-align:center;">
+            <div style="font-size:34px;">2️⃣</div>
+            <div class="ct">即刻撥打 165</div>
+            <p>向 165 反詐騙諮詢專線查證。</p>
+          </div>
+          <div class="card c-orange" style="text-align:center;">
+            <div style="font-size:34px;">3️⃣</div>
+            <div class="ct">自行官方查證</div>
+            <p>自行開啟官方 App 或官方網站，不點不明連結。</p>
+          </div>
+        </div>
+        <div class="alert ao">✅ 口訣：先掛斷 → 撥 165 → 自己開官方管道查證</div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/defense/post-breach-defense.md § 1、§ 3</span>
+        <span>原始資料：raw/03 數發部資安署</span>
+      </div>
+    </section>
+    <!-- ═══ P9 外洩：企業義務【對象：企業】 ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">🏢</div>
+        <h2 class="st">外洩發生：企業有哪些法律義務？<span class="badge bc">對象：企業</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="alert ai">ℹ️ 此頁說明企業（機關）的義務，讓你知道制度上要求企業做什麼。以下是修正版條文，尚未生效；現行實務以哪個版本為準：【待使用者確認】。</div>
+        <div class="cards g2">
+          <div class="card c-blue">
+            <div class="ct">📌 通知當事人（第 12 條第 1 項）</div>
+            <div class="qblock" style="font-size:16px;">「公務機關或非公務機關知悉所保有之個人資料被竊取、竄改、毀損、滅失或洩漏時，應通知當事人。」</div>
+            <p style="font-size:16px;">通知時限：授權主管機關另訂辦法，母法本身未載明天數。</p>
+          </div>
+          <div class="card c-orange">
+            <div class="ct">📋 通報與應變（第 12 條第 2、3 項）</div>
+            <p style="font-size:16px;">非公務機關符合一定通報範圍者：「向主管機關通報。主管機關受理通報後，並轉知其目的事業主管機關。」</p>
+            <p style="font-size:16px;">並應「採取即時有效之應變措施，防止事故之擴大，及記載相關事實、影響、已採取之因應措施，並保存相關紀錄，以備主管機關查驗」。</p>
+            <p style="font-size:16px;">違反通知或通報義務：罰鍰新臺幣二萬元以上二十萬元以下（第 48 條第 1 項第 3 款、第 2 項）。</p>
+          </div>
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/data-breach-notification.md</span>
+        <span>第 12、48 條：修正版條文（尚未生效）</span>
+      </div>
+    </section>
+
+    <!-- ═══ P10 72 小時對照（三方並列，不下結論）【對象：企業】 ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">⏱️</div>
+        <h2 class="st">「72 小時」是誰說的？<span class="badge bc">對象：企業</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="alert ai">ℹ️ 三個來源都談到外洩通報時限，但<strong>只有兩個提到「72 小時」</strong>（歐盟 GDPR、數發部呼籲）；個資法母法沒有寫 72 小時。三者主體、性質與法律效力各不相同，以下並列事實，不裁決。</div>
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>來源</th>
+              <th>72 小時的內容</th>
+              <th>規範性質</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag-gdpr">歐盟 GDPR</span><br>（raw/06）</td>
+              <td>「如果資料洩露對用戶隱私產生不利影響，企業必須在72小時內報告任何資料洩露。」</td>
+              <td>歐盟條例（Regulation）：對與歐洲做生意的企業設定的法定義務，直接適用</td>
+            </tr>
+            <tr>
+              <td><span class="tag-moda">數發部新聞稿</span><br>（raw/03）</td>
+              <td>四項呼籲（72小時內）：①修補漏洞 ②通報主管機關 ③個別通知當事人潛在詐騙風險 ④查明原因止血防擴大<br><small style="color:#888;">（第5項：「一個月內」提出改善計劃，不在72小時內）</small></td>
+              <td>行政指導／政策呼籲（非個資法罰則條文）【待使用者確認】</td>
+            </tr>
+            <tr>
+              <td><span class="tag-pdpa">臺灣個資法</span><br>（raw/01，第 12 條第 4 項）</td>
+              <td>「前三項應通知或通報之內容、方式、時限與通報範圍、應變措施、紀錄保存及其他相關事項之辦法，由主管機關定之。」<br><strong>母法完全未載明「72 小時」</strong>。</td>
+              <td>修正版條文（尚未生效）；「母法」就是個資法本身，時限授權主管機關另訂辦法</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/time-limits-comparison.md</span>
+        <span>各來源：raw/06、raw/03、raw/01</span>
+      </div>
+    </section>
+    <!-- ═══ P11 個資法第 27 條（01 與 03 並列，不裁決）【對象：企業】 ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">📜</div>
+        <h2 class="st">個資法第 27 條：兩份文獻記載不一致<span class="badge bc">對象：企業</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="alert aw">⚠️ 本頁並列事實，不裁決何者正確；現行實務狀態標【待使用者確認】。</div>
+        <div class="cards g2">
+          <div class="card c-red">
+            <div class="ct">📄 raw/01 立法院修正版條文記載</div>
+            <div class="qblock" style="font-size:16px;">
+              條文內文：「（刪除）」<br>
+              頁首沿革：「刪除第 27 條條文，施行日期，由行政院定之。」
+            </div>
+            <p style="margin-top:6px;font-size:15px;">【狀態：本版標示刪除】</p>
+          </div>
+          <div class="card c-orange">
+            <div class="ct">📄 raw/03 數發部新聞稿引用</div>
+            <div class="qblock" style="font-size:16px;">
+              「依《個人資料保護法》第12條、第27條及各目的事業主管機關所訂之個人資料檔案安全維護辦法，於法定期限內向目的事業主管機關完成通報，並於查明後依法通知當事人。」
+            </div>
+          </div>
+        </div>
+        <div class="alert ai">ℹ️ 本頁只並列兩份文獻的原文，不補充 raw 沒有記載的內容。現行實務以哪個版本為準：【待使用者確認】。</div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/article-27-status.md</span>
+        <span>raw/01 ＋ raw/03 並列，不裁決</span>
+      </div>
+    </section>
+    <!-- ═══ P12 密碼安全（上）【對象：服務提供者】 ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">🔑</div>
+        <h2 class="st">密碼安全（上）：登入系統該怎麼設計<span class="badge bs">對象：服務提供者</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="alert ai">ℹ️ 以下來自 NIST SP 800-63B，是寫給<strong>提供登入驗證服務的一方（驗證方 Verifier／服務提供者）</strong>的系統設計規範，<strong>不是給個人設定密碼的操作規則</strong>。</div>
+        <div class="cards g3">
+          <div class="card c-blue">
+            <div class="ct">① 長度是強度的主要指標（Password Length）</div>
+            <p class="zh">密碼長度是衡量強度的主要因素。太短的密碼容易被暴力破解、字典攻擊；系統應鼓勵使用者在合理範圍內設定盡可能長的密碼。</p>
+            <p class="en">「Password length is a primary factor in characterizing password strength」</p>
+          </div>
+          <div class="card c-green">
+            <div class="ct">② 強制組成規則，效益有限（Composition rules）</div>
+            <p class="zh">強制混用大小寫、數字、符號，提升安全的效果不如原先預期，卻嚴重影響好用與好記；使用者的反應也很好猜（例如把 password 改成 Password1）。</p>
+            <p class="en">「less significant than initially thought」<br>「impacts on usability and memorability are severe」</p>
+          </div>
+          <div class="card c-yellow">
+            <div class="ct">③ 比對外洩密碼黑名單（Blocklist）</div>
+            <p class="zh">使用者設定密碼時，系統應拿去和「不可接受的密碼名單」比對。名單包括：曾外洩的密碼、字典詞彙，以及該服務本身的名稱。</p>
+            <p class="en">「passwords chosen by users should be compared against a blocklist of unacceptable passwords」</p>
+          </div>
+        </div>
+        <div class="alert aw">🧑 <strong>譯為個人視角</strong>（wiki 的轉譯，<strong>不是 NIST 對個人的直接建議</strong>）：<br>
+          ・系統若強迫加入大小寫與符號，人容易用規律代換（把 a 改成 @、尾端加 1!），反而難記、也沒有明顯更安全。<br>
+          ・密碼被系統拒絕，常是因為它已在外洩清單或常見字典裡。</div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/password-authentication-guidelines.md</span>
+        <span>原始資料：raw/05 NIST SP 800-63B</span>
+      </div>
+    </section>
+    <!-- ═══ P12-2 密碼安全（下）【對象：服務提供者】 ═══ -->
+    <section class="slide s-legal">
+      <div class="slide-header">
+        <div class="ei">🔐</div>
+        <h2 class="st">密碼安全（下）：被偷、被猜時怎麼防<span class="badge bs">對象：服務提供者</span></h2>
+      </div>
+      <div class="one-col">
+        <div class="cards g3">
+          <div class="card c-orange">
+            <div class="ct">④ 加鹽雜湊儲存（Salted and Hashed）</div>
+            <p class="zh">駭客拿到資料庫後，可在不受限制的離線環境每秒計算數十億次雜湊。所以密碼要先加上隨機值（加鹽）再雜湊，且偏好運算成本高的演算法。</p>
+            <p class="en">「passwords are salted with a random value and hashed, preferably using a computationally expensive algorithm」</p>
+          </div>
+          <div class="card c-purple">
+            <div class="ct">⑤ 限制登入嘗試速率（Throttling）</div>
+            <p class="zh">直接到登入頁面猜密碼的「線上攻擊」，要靠限制允許的登入嘗試速率來緩解；節流是防禦線上猜測的主要手段。</p>
+            <p class="en">「Throttling is the primary defense against online attacks」</p>
+          </div>
+          <div class="card c-mint">
+            <div class="ct">⑥ 允許空格與通行密語（Passphrases）</div>
+            <p class="zh">由多個單詞組成的「通行密語」是建立長密碼的有效方式，所以系統必須允許使用者輸入空格。</p>
+            <p class="en">「Users should also be able to include space characters to allow the use of phrases」</p>
+          </div>
+        </div>
+        <div class="alert aw">🧑 <strong>譯為個人視角</strong>（wiki 的轉譯，<strong>不是 NIST 對個人的直接建議</strong>）：在支援空格的系統，可用幾個生活詞彙組成長短語，兼顧長度與好記。</div>
+      </div>
+      <div class="source">
+        <span>來源：wiki/legal/password-authentication-guidelines.md</span>
+        <span>原始資料：raw/05 NIST SP 800-63B</span>
+      </div>
+    </section>
+    <!-- ═══ P14 重點回顧 + 延伸閱讀 ═══ -->
+    <section class="slide s-review">
+      <div class="slide-header">
+        <div class="ei">🏁</div>
+        <h2 class="st">重點回顧</h2>
+      </div>
+      <div class="review-grid">
+        <div class="rc"><div class="re">📋</div><div class="rt">個資定義很廣</div>直接或間接識別你的都算。病歷/醫療/基因等受第 6 條嚴格保護。</div>
+        <div class="rc"><div class="re">⚖️</div><div class="rt">五大法定權利</div>查詢、複製、更正、停止、刪除。這些權利不得預先拋棄或以特約限制。</div>
+        <div class="rc"><div class="re">📢</div><div class="rt">廣告拒絕權</div>非公務機關行銷時，你表示拒絕，對方應即停止；首次行銷時，須提供拒絕方式。</div>
+        <div class="rc"><div class="re">🛒</div><div class="rt">假網拍／假投資</div>特徵：超常低價、要求加 LINE、先匯款；假投資還會叮囑匯款時別說是投資。</div>
+        <div class="rc"><div class="re">💔</div><div class="rt">假交友投資詐財</div>特徵：名車豪宴照、合租算力機、要提領獲利卻要先繳認證費用。</div>
+        <div class="rc"><div class="re">🎣</div><div class="rt">釣魚郵件</div><div><code>.g0v.tw</code> ≠ <code>.gov.tw</code>。不點附檔，自己查官方電話。</div></div>
+        <div class="rc"><div class="re">⏱️</div><div class="rt">72 小時要搞清楚</div>GDPR 是歐盟法規；數發部是政策呼籲【待使用者確認】；個資法母法未載 72 小時。</div>
+        <div class="rc"><div class="re">🔐</div><div class="rt">自保四原則</div>知道細節不等於真客服；不點不明連結；提到「操作ATM、網銀解除扣款」或「透過通訊軟體退款」立即掛斷；常用帳號開 2FA。</div>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#2d3561;margin-top:10px;margin-bottom:6px;">📄 延伸閱讀（wiki 頁面）</div>
+        <div class="reading-list">
+          <div class="ri">常見五大詐騙手法辨識特徵與自保防範</div>
+          <div class="ri">個資外洩後防詐自保四原則</div>
+          <div class="ri">偽冒公務機關電子郵件與社交工程防範</div>
+          <div class="ri">個人資料之定義與第6條所列個人資料</div>
+          <div class="ri">當事人法定權利與救濟規範</div>
+          <div class="ri">個人資料外洩事故通知與通報義務</div>
+          <div class="ri">個資外洩與資安通報時限比較專題</div>
+          <div class="ri">個資法第 27 條狀態紀錄</div>
+          <div class="ri">服務提供者密碼驗證技術規範</div>
+        </div>
+      </div>
+      <div class="source">
+        <span>來源：彙整自上列各 wiki 頁；目錄見 wiki/index.md</span>
+        <span>本頁為摘要，細節以各 wiki 頁面為準</span>
+      </div>
+    </section>
+
+  </div><!-- .deck-stage -->
+
+  <div class="progress"><div id="bar"></div></div>
+  <div class="nav-bar">
+    <button class="nav-btn" id="prevBtn" onclick="go(-1)" disabled>◀ 上一頁</button>
+    <span class="page-info" id="pi">1 / 15</span>
+    <button class="nav-btn" id="nextBtn" onclick="go(1)">下一頁 ▶</button>
+  </div>
+</div><!-- .deck-wrapper -->
+
+<script>
+const slides = document.querySelectorAll('section.slide');
+let cur = 0;
+const stage = document.querySelector('.deck-stage');
+const bar = document.getElementById('bar');
+// 依出現順序替每頁的頂層元素編號，用來錯開動畫起始時間（最多 9 階，避免等太久）
+const ANIM = '.card,.qblock,.alert,.legend-card,.rc,.pill,.ri,.comp-table tbody tr';
+slides.forEach(sl => {
+  [...sl.querySelectorAll(ANIM)].filter(e => !e.parentElement.closest(ANIM))
+    .forEach((e, i) => e.style.setProperty('--i', Math.min(i, 9)));
+});
+function show(n) {
+  slides[cur].classList.remove('active');
+  const next = Math.max(0, Math.min(n, slides.length - 1));
+  stage.dataset.dir = next >= cur ? 'next' : 'prev';
+  cur = next;
+  slides[cur].classList.add('active');
+  document.getElementById('pi').textContent = (cur+1)+' / '+slides.length;
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').disabled = cur === slides.length - 1;
+  bar.style.width = ((cur+1)/slides.length*100)+'%';
+}
+function go(d) { show(cur+d); }
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '||e.key==='PageDown') go(1);
+  if (e.key==='ArrowLeft' ||e.key==='ArrowUp'||e.key==='PageUp') go(-1);
+});
+stage.addEventListener('click', e => {
+  const r = stage.getBoundingClientRect();
+  go(e.clientX > r.left + r.width/2 ? 1 : -1);
+});
+bar.style.width = (1/slides.length*100)+'%';
+</script>
+</body>
+</html>
